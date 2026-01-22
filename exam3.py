@@ -5,7 +5,7 @@
 # GPT 채점·DB(Supabase) 저장 함수를 추가하면 됩니다.
 # --------------------------------------------------
 
-import streamlit as st
+# import streamlit as st
 
 # ── 1. 수업 제목 ──
 st.title("오후 연수 언제 끝나나ㅠㅠ")  # ← 교과별 제목으로 자유롭게 수정하세요.
@@ -195,3 +195,4 @@ if st.session_state.gpt_feedbacks:
 
 
     st.success("모든 피드백이 생성되었습니다. (DB 저장용 데이터 준비 완료)")
+
