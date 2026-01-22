@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from supabase import create_client, Client
+
+# Plotly 라이브러리 체크 및 임포트
+try:
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
 
 # ---- 1. Supabase 설정 ----
 @st.cache_resource
@@ -54,26 +60,29 @@ try:
     st.divider()
 
     # ---- 4. 시각화 섹션 ----
-    st.subheader("📊 문항별 정답 현황")
-    chart_col1, chart_col2 = st.columns(2)
+    if PLOTLY_AVAILABLE:
+        st.subheader("📊 문항별 정답 현황")
+        chart_col1, chart_col2 = st.columns(2)
 
-    with chart_col1:
-        # 문항별 O/X 통계 그래프
-        pass_counts = pd.DataFrame({
-            '문항': ['문항 1', '문항 2', '문항 3'],
-            '정답수': [q1_pass, q2_pass, q3_pass],
-            '오답수': [len(df)-q1_pass, len(df)-q2_pass, len(df)-q3_pass]
-        })
-        fig = px.bar(pass_counts, x='문항', y=['정답수', '오답수'], 
-                     title="문항별 합격 여부", barmode='group',
-                     color_discrete_map={'정답수': '#2ecc71', '오답수': '#e74c3c'})
-        st.plotly_chart(fig, use_container_width=True)
+        with chart_col1:
+            # 문항별 O/X 통계 그래프
+            pass_counts = pd.DataFrame({
+                '문항': ['문항 1', '문항 2', '문항 3'],
+                '정답수': [q1_pass, q2_pass, q3_pass],
+                '오답수': [len(df)-q1_pass, len(df)-q2_pass, len(df)-q3_pass]
+            })
+            fig = px.bar(pass_counts, x='문항', y=['정답수', '오답수'], 
+                         title="문항별 합격 여부", barmode='group',
+                         color_discrete_map={'정답수': '#2ecc71', '오답수': '#e74c3c'})
+            st.plotly_chart(fig, use_container_width=True)
 
-    with chart_col2:
-        # 시간대별 제출 현황
-        df_time = df.set_index('created_at').resample('H').size().reset_index(name='count')
-        fig_time = px.line(df_time, x='created_at', y='count', title="시간대별 제출 추이", markers=True)
-        st.plotly_chart(fig_time, use_container_width=True)
+        with chart_col2:
+            # 시간대별 제출 현황
+            df_time = df.set_index('created_at').resample('H').size().reset_index(name='count')
+            fig_time = px.line(df_time, x='created_at', y='count', title="시간대별 제출 추이", markers=True)
+            st.plotly_chart(fig_time, use_container_width=True)
+    else:
+        st.warning("⚠️ 시각화 차트를 표시하려면 `plotly` 라이브러리 설치가 필요합니다. 터미널에 `pip install plotly`를 입력하세요.")
 
     # ---- 5. 상세 데이터 필터링 및 조회 ----
     st.divider()
